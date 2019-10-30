@@ -2,8 +2,12 @@ import pygame
 import sys
 import random
 
+from gauss import get_mat
+
 from math import sqrt
 from pygame.locals import *
+
+DIM = 50
 
 pygame.init()
 pygame.mixer.init()
@@ -62,6 +66,8 @@ gridSizeRect = pygame.Rect((442,330,142,60))
 #exit
 exitRect=pygame.Rect((392,659,240,50))
 
+gauss_mat = get_mat()
+
 #Function for rendering text
 def text_objects(text, font):
   textSurface = font.render(text, True, BLACK)
@@ -112,6 +118,8 @@ def search_key():
 
         if event.type == pygame.MOUSEMOTION:
             x, y = event.pos
+
+        mouse_pos = pygame.mouse.get_pos()
 
         #main menu
         if start == False and howto == False:
@@ -252,6 +260,29 @@ def search_key():
             windowSurface.blit(textSurf8, textRect8)
             windowSurface.blit(textSurf9, textRect9)
             windowSurface.blit(textSurf10, textRect10)
+
+            mouse_x, mouse_y = mouse_pos
+
+            for i in range(-DIM,DIM+1):
+                for j in range(-DIM,DIM+1):
+                    coordx = x + j
+                    coordy = y + i
+
+                    newColor = []
+
+                    if coordx >= 0 and coordx < 1024:
+                        if coordy >= 0 and coordy < 768:
+                            addColor = (gauss_mat[i][j],gauss_mat[i][j],gauss_mat[i][j])
+                            currentColor = windowSurface.get_at((coordx, coordy))
+
+                            newColor.append(min(currentColor[0]+addColor[0],255))
+                            newColor.append(min(currentColor[1]+addColor[1],255))
+                            newColor.append(min(currentColor[2]+addColor[2],255))
+
+                            newColorTup = (newColor[0],newColor[1],newColor[2])
+
+                            # print(newColor)
+                            windowSurface.set_at((coordx, coordy), newColorTup)
 
         #how to screen
         elif howto == True:
@@ -447,6 +478,7 @@ def search_key():
                 else:
                     black_rec=pygame.draw.rect(windowSurface, BLACK, (right,down,horizontal,vertical))
             else:
+                # Displays only outline as black
                 black_rec=pygame.draw.rect(windowSurface, BLACK, (right,down,horizontal,vertical),2)
             rects[i]=black_rec
             right+=100
